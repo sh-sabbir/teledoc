@@ -1,3 +1,4 @@
+.mobile-menu,
 #sidebar {
     li.active {
         & > a {
@@ -20,6 +21,7 @@
 }
 
 .dark {
+    .mobile-menu,
     #sidebar {
         li.active {
             & > a {
