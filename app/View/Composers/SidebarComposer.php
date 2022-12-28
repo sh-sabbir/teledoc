@@ -93,16 +93,18 @@ class SidebarComposer {
         });
 
         $renderedMenu = $this->menuRender($menu->roots(), ['class' => 'space-y-2 pb-2'], ['class' => 'hidden submenu py-2 space-y-2']);
+        $renderedMobileMenu = $this->menuRender($menu->roots(), ['class' => 'space-y-2 pb-2'], ['class' => 'hidden submenu py-2 space-y-2'], [], null, [], 'mobile');
 
         $view->with('sidebar_menu', $renderedMenu);
+        $view->with('mobile_menu', $renderedMobileMenu);
     }
 
-    public function menuRender($items = null, $attributes = [], $children_attributes = [], $item_attributes = [], $item_after_calback = null, $item_after_calback_params = []) {
-        return '<ul' . \Lavary\Menu\Builder::attributes($attributes) . '>' . $this->render('ul', $items, $children_attributes, $item_attributes, $item_after_calback, $item_after_calback_params) . '</ul>';
+    public function menuRender($items = null, $attributes = [], $children_attributes = [], $item_attributes = [], $item_after_calback = null, $item_after_calback_params = [], $mobile_prefix = null) {
+        return '<ul' . \Lavary\Menu\Builder::attributes($attributes) . '>' . $this->render('ul', $items, $children_attributes, $item_attributes, $item_after_calback, $item_after_calback_params, $mobile_prefix) . '</ul>';
     }
 
 
-    public function render($type = 'ul', $menu_items = null, $children_attributes = [], $item_attributes = [], $item_after_calback = null, $item_after_calback_params = []) {
+    public function render($type = 'ul', $menu_items = null, $children_attributes = [], $item_attributes = [], $item_after_calback = null, $item_after_calback_params = [], $mobile_prefix) {
         $items = '';
 
         $item_tag = in_array($type, array('ul', 'ol')) ? 'li' : $type;
@@ -127,6 +129,10 @@ class SidebarComposer {
             $items .= '<' . $item_tag . \Lavary\Menu\Builder::attributes($all_attributes) . '>';
 
             if ($item->link) {
+                if ($mobile_prefix && $item->hasChildren()) {
+                    $link_attr['data-submenu-target'] = $mobile_prefix . "-" . $link_attr['data-submenu-target'];
+                    // dd($link_attr);
+                }
                 $items .= $item->beforeHTML . '<a' . \Lavary\Menu\Builder::attributes($link_attr) . (!empty($item->url()) ? ' href="' . $item->url() . '"' : '') . '>' . $item->title . '</a>' . $item->afterHTML;
             } else {
                 $items .= $item->title;
@@ -139,7 +145,7 @@ class SidebarComposer {
                 }
 
                 $unique_child_attr = $children_attributes;
-                $unique_child_attr['id'] = $item->data('submenu_id');
+                $unique_child_attr['data-menu-id'] = $mobile_prefix ? $mobile_prefix . '-' . $item->data('submenu_id') : $item->data('submenu_id');
 
                 if ($isItemActive && strpos($unique_child_attr['class'], 'hidden') !== false) {
                     $unique_child_attr['class'] = str_replace('hidden', "", $unique_child_attr['class']);
@@ -147,7 +153,7 @@ class SidebarComposer {
 
                 $items .= '<' . $type . \Lavary\Menu\Builder::attributes($unique_child_attr) . '>';
                 // Recursive call to children.
-                $items .= $this->render($type, $item->children(), $children_attributes, $item_attributes, $item_after_calback, $item_after_calback_params);
+                $items .= $this->render($type, $item->children(), $children_attributes, $item_attributes, $item_after_calback, $item_after_calback_params, $mobile_prefix);
                 $items .= "</{$type}>";
             }
 
