@@ -1,0 +1,44 @@
+#sidebar {
+    li.active {
+        & > a {
+            background: rgb(243 244 246);
+            // color: ;
+            i {
+                color: rgb(17 24 39);
+            }
+        }
+
+        ul {
+            li.active {
+                & > a {
+                    font-weight: 600;
+                    // background: red;
+                }
+            }
+        }
+    }
+}
+
+.dark {
+    #sidebar {
+        li.active {
+            & > a {
+                background: rgb(243 244 246);
+                color: rgb(17 24 39);
+                i {
+                    color: rgb(17 24 39);
+                }
+            }
+
+            ul {
+                li.active {
+                    & > a {
+                        background: rgb(55 65 81);
+                        color: #fff;
+                        font-weight: 600;
+                    }
+                }
+            }
+        }
+    }
+}

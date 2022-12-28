@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,9 +24,14 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('users/managers', [UsersController::class, 'listManagers'])->name('user.managers.list');
+    Route::get('users/doctors', [UsersController::class, 'listDoctors'])->name('user.doctors.list');
+    Route::get('users/patients', [UsersController::class, 'listPatients'])->name('user.patients.list');
+    Route::get('users/support-agents', [UsersController::class, 'listAgents'])->name('user.agents.list');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -25,12 +25,12 @@ class SidebarComposer {
         ];
 
         $menu = \Menu::make('MyNavBar', function ($menu) use ($classes) {
-            $menu->add('<span class="' . $classes['link-text'] . '">Dashboard</span>', ['route' => 'home'])
+            $menu->add('<span class="' . $classes['link-text'] . '">Dashboard</span>', ['route' => 'dashboard'])
                 ->prepend('<i class="tele tele-dashboard ' . $classes['prepend'] . '"></i>')
-                ->append('<span class="' . $classes['append'] . '">Pro</span>')
+                // ->append('<span class="' . $classes['append'] . '">Pro</span>')
                 ->link->attr(['class' => $classes['link']]);
 
-            $menu->add('<span class="' . $classes['link-text'] . '">Managers</span>', '')
+            $menu->add('<span class="' . $classes['link-text'] . '">Managers</span>', 'user.managers.list')
                 ->prepend('<i class="tele tele-user-manager ' . $classes['prepend'] . '"></i>')
                 ->append($classes['sub-indicator'])
                 ->nickname('managers')
@@ -38,13 +38,13 @@ class SidebarComposer {
                 ->link->attr(['class' => $classes['link'], 'data-submenu-target' => 'managers'])
                 ->href('javascript:void()');
 
-                $menu->managers->add('All Managers', ['route' => 'home'])
-                    ->link->attr(['class' => $classes['link-child']]);
+            $menu->managers->add('All Managers', ['route' => 'user.managers.list'])
+                ->link->attr(['class' => $classes['link-child']]);
 
-                $menu->managers->add('Add New', ['route' => 'home'])
-                    ->link->attr(['class' => $classes['link-child']]);
+            $menu->managers->add('Add New', ['route' => 'home'])
+                ->link->attr(['class' => $classes['link-child']]);
 
-            $menu->add('<span class="' . $classes['link-text'] . '">Doctors</span>', 'about')
+            $menu->add('<span class="' . $classes['link-text'] . '">Doctors</span>', 'user.doctors.list')
                 ->prepend('<i class="tele tele-user-doctor ' . $classes['prepend'] . '"></i>')
                 ->append($classes['sub-indicator'])
                 ->nickname('doctors')
@@ -52,13 +52,13 @@ class SidebarComposer {
                 ->link->attr(['class' => $classes['link'], 'data-submenu-target' => 'doctors'])
                 ->href('javascript:void()');
 
-                $menu->doctors->add('All Doctors', ['route' => 'home'])
-                    ->link->attr(['class' => $classes['link-child']]);
+            $menu->doctors->add('All Doctors', ['route' => 'user.doctors.list'])
+                ->link->attr(['class' => $classes['link-child']]);
 
-                $menu->doctors->add('Add New', ['route' => 'home'])
-                    ->link->attr(['class' => $classes['link-child']]);
+            $menu->doctors->add('Add New', ['route' => 'home'])
+                ->link->attr(['class' => $classes['link-child']]);
 
-            $menu->add('<span class="' . $classes['link-text'] . '">Users</span>', 'about')
+            $menu->add('<span class="' . $classes['link-text'] . '">Patients</span>', 'user.patients.list')
                 ->prepend('<i class="tele tele-user-patient ' . $classes['prepend'] . '"></i>')
                 ->append($classes['sub-indicator'])
                 ->nickname('users')
@@ -66,13 +66,13 @@ class SidebarComposer {
                 ->link->attr(['class' => $classes['link'], 'data-submenu-target' => 'users'])
                 ->href('javascript:void()');
 
-                $menu->users->add('All Users', ['route' => 'home'])
-                    ->link->attr(['class' => $classes['link-child']]);
+            $menu->users->add('All Patients', ['route' => 'user.patients.list'])
+                ->link->attr(['class' => $classes['link-child']]);
 
-                $menu->users->add('Add New', ['route' => 'home'])
-                    ->link->attr(['class' => $classes['link-child']]);
+            $menu->users->add('Add New', ['route' => 'home'])
+                ->link->attr(['class' => $classes['link-child']]);
 
-            $menu->add('<span class="' . $classes['link-text'] . '">Support Agents</span>', 'about')
+            $menu->add('<span class="' . $classes['link-text'] . '">Support Agents</span>', 'user.agents.list')
                 ->prepend('<i class="tele tele-user-support ' . $classes['prepend'] . '"></i>')
                 ->append($classes['sub-indicator'])
                 ->nickname('agents')
@@ -80,20 +80,19 @@ class SidebarComposer {
                 ->link->attr(['class' => $classes['link'], 'data-submenu-target' => 'agents'])
                 ->href('javascript:void()');
 
-                $menu->agents->add('All Support Agents', ['route' => 'home'])
-                    ->link->attr(['class' => $classes['link-child']]);
+            $menu->agents->add('All Support Agents', ['route' => 'user.agents.list'])
+                ->link->attr(['class' => $classes['link-child']]);
 
-                $menu->agents->add('Add New', ['route' => 'home'])
-                    ->link->attr(['class' => $classes['link-child']]);
+            $menu->agents->add('Add New', ['route' => 'home'])
+                ->link->attr(['class' => $classes['link-child']]);
 
 
             $menu->add('<span class="' . $classes['link-text'] . '">About</span>', 'about')
                 ->prepend('<i class="ti ti-smart-home ' . $classes['prepend'] . '"></i>')
                 ->link->attr(['class' => $classes['link']]);
-
         });
 
-        $renderedMenu = $this->menuRender($menu->roots(), ['class' => 'space-y-2 pb-2'], ['class' => 'hidden py-2 space-y-2']);
+        $renderedMenu = $this->menuRender($menu->roots(), ['class' => 'space-y-2 pb-2'], ['class' => 'hidden submenu py-2 space-y-2']);
 
         $view->with('sidebar_menu', $renderedMenu);
     }
@@ -134,8 +133,18 @@ class SidebarComposer {
             }
 
             if ($item->hasChildren()) {
+                $isItemActive = false;
+                if ($item->children()->where('isActive', true)->first() !== null) {
+                    $isItemActive = true;
+                }
+
                 $unique_child_attr = $children_attributes;
                 $unique_child_attr['id'] = $item->data('submenu_id');
+
+                if ($isItemActive && strpos($unique_child_attr['class'], 'hidden') !== false) {
+                    $unique_child_attr['class'] = str_replace('hidden', "", $unique_child_attr['class']);
+                }
+
                 $items .= '<' . $type . \Lavary\Menu\Builder::attributes($unique_child_attr) . '>';
                 // Recursive call to children.
                 $items .= $this->render($type, $item->children(), $children_attributes, $item_attributes, $item_after_calback, $item_after_calback_params);

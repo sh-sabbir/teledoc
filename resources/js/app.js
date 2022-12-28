@@ -13,6 +13,11 @@ submenuTargets.forEach((target) => {
         event.preventDefault();
         const submenuId = target.getAttribute("data-submenu-target");
         const submenu = document.getElementById(submenuId);
+
+        // close any other open submenus
+        const openSubmenus = document.querySelectorAll(".submenu:not(.hidden)");
+        openSubmenus.forEach((submenu) => submenu.classList.add("hidden"));
+
         // toggle the submenu's visibility
         submenu.classList.toggle("hidden");
     });
